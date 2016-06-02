@@ -1,17 +1,19 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "heap.h"
+#include "heapdouble.h"
 
 
 typedef struct mediana{
-	heap_t* heap_max, heap_min;
-	size_t tam_heap_max, tam_heap_min;
+	heap_t* heap_max;
+	heap_t* heap_min;
+	size_t tam_heap_max;
+	size_t tam_heap_min;
 }mediana_t;
 
 
 //Funcion de comparacion.
-int cmp(double *n1, double *n2){
+int cmp(const double *n1, const double *n2){
 	if(n1 > n2){
 		return 1;
 	}else if(n1 < n2){
@@ -22,7 +24,7 @@ int cmp(double *n1, double *n2){
 
 
 //Funcion de comparacion invertida.
-int cmp_min(double *n1, double *n2){ 
+int cmp_min(const double *n1, const double *n2){ 
 	if(n1 > n2){
 		return -1;
 	}else if(n1 < n2){
@@ -43,7 +45,7 @@ mediana_t* calculador_mediana_crear(){
 	calculador_mediana->heap_min = heap_crear(cmp_min);
 	calculador_mediana->tam_heap_max = 0;
 	calculador_mediana->tam_heap_min = 0;
-	return mediana;
+	return calculador_mediana;
 }
 
 
@@ -54,7 +56,7 @@ bool calculador_mediana_agregar_valor(mediana_t* mediana, double valor){
 	if(mediana->tam_heap_max == 0){
 		return heap_encolar(mediana->heap_max, &valor);
 	}else{
-		if(mediana->heap_max->comparar_prioridad(heap_ver_max(mediana->heap_max, valor)) > 0){
+		if(mediana->heap_max->comparar_prioridad(heap_ver_max(mediana->heap_max)) > 0){
 			return heap_encolar(mediana->heap_max, &valor);
 		}
 		return heap_encolar(mediana->heap_min, &valor);	
@@ -63,8 +65,8 @@ bool calculador_mediana_agregar_valor(mediana_t* mediana, double valor){
 
 
 //Balancea los heaps para que la diferencia de tamanos entre ellos no sea mayor a 1.
-void heaps_balancear(mediana_t* meidana){
-	size_t diferencia = mediana->tam_heap_max - mediana->tam_hep_min;
+void heaps_balancear(mediana_t* mediana){
+	size_t diferencia = mediana->tam_heap_max - mediana->tam_heap_min;
 	while((diferencia < -1) || (diferencia > 1)){
 		if(mediana->tam_heap_max > mediana->tam_heap_min){
 			heap_encolar(mediana->heap_min, heap_desencolar(mediana->heap_max));
@@ -80,14 +82,14 @@ void heaps_balancear(mediana_t* meidana){
 double calculador_mediana_obtener_mediana(mediana_t* mediana){
 	double mediana_valor;
 	heaps_balancear(mediana);
-	size_t diferencia = mediana->tam_heap_max - mediana->tam_hep_min;
+	size_t diferencia = mediana->tam_heap_max - mediana->tam_heap_min;
 	if(diferencia == 0){
-		mediana_valor = (heap_ver_max(mediana->heap_max) + heap_ver_max(mediana->heap_min))/2;
+		mediana_valor = (*heap_ver_max(mediana->heap_max) + *heap_ver_max(mediana->heap_min))/2;
 	}else{
 		if(mediana->tam_heap_max > mediana->tam_heap_min){
-			mediana_valor = heap_ver_max(mediana->heap_max);
+			mediana_valor = *heap_ver_max(mediana->heap_max);
 		}else{
-			mediana_valor = heap_ver_max(mediana->heap_min);
+			mediana_valor = *heap_ver_max(mediana->heap_min);
 		}
 	}
 	return mediana_valor;
