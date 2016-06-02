@@ -55,11 +55,14 @@ mediana_t* calculador_mediana_crear(){
 bool calculador_mediana_agregar_valor(mediana_t* mediana, double valor){
 	if(mediana->tam_heap_max == 0){
 		return heap_encolar(mediana->heap_max, &valor);
+		mediana->tam_heap_max++;
 	}else{
-		if(mediana->heap_max->comparar_prioridad(heap_ver_max(mediana->heap_max)) > 0){
+		if(mediana->heap_max->comparar_prioridad(heap_ver_max(mediana->heap_max), &valor) > 0){
 			return heap_encolar(mediana->heap_max, &valor);
+			mediana->tam_heap_max++;
 		}
-		return heap_encolar(mediana->heap_min, &valor);	
+		return heap_encolar(mediana->heap_min, &valor);
+		mediana->tam_heap_min++;
 	}
 }
 
@@ -70,9 +73,12 @@ void heaps_balancear(mediana_t* mediana){
 	while((diferencia < -1) || (diferencia > 1)){
 		if(mediana->tam_heap_max > mediana->tam_heap_min){
 			heap_encolar(mediana->heap_min, heap_desencolar(mediana->heap_max));
+			mediana->tam_heap_min++, mediana->tam_heap_max--;
 		}else{
 			heap_encolar(mediana->heap_max, heap_desencolar(mediana->heap_min));
+			mediana->tam_heap_max++, mediana->tam_heap_min--;
 		}
+		diferencia = mediana->tam_heap_max - mediana->tam_heap_min;
 	}
 }
 
